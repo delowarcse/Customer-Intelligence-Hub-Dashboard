@@ -1,0 +1,408 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.db { background: #0e1117; color: #e8eaf0; border-radius: 12px; padding: 0; overflow: hidden; min-height: 900px; }
+.topbar { background: #161b27; border-bottom: 1px solid #2a3045; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+.topbar-title { font-size: 14px; font-weight: 500; color: #c8cfe8; letter-spacing: 0.3px; }
+.topbar-meta { font-size: 11px; color: #6b7494; }
+.tabs { display: flex; gap: 0; background: #161b27; border-bottom: 1px solid #2a3045; padding: 0 20px; }
+.tab { font-size: 12px; font-weight: 500; padding: 10px 16px; cursor: pointer; color: #6b7494; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+.tab.active { color: #4f8ef7; border-bottom-color: #4f8ef7; }
+.tab:hover:not(.active) { color: #a0aacb; }
+.content { padding: 16px; }
+.section { display: none; }
+.section.active { display: block; }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+.kpi { background: #161b27; border: 1px solid #2a3045; border-radius: 8px; padding: 12px 14px; }
+.kpi-label { font-size: 10px; color: #6b7494; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.kpi-value { font-size: 22px; font-weight: 500; color: #e8eaf0; line-height: 1; margin-bottom: 4px; }
+.kpi-delta { font-size: 11px; display: flex; align-items: center; gap: 4px; }
+.kpi-delta.up { color: #4ade80; }
+.kpi-delta.down { color: #f87171; }
+.kpi-delta.warn { color: #fbbf24; }
+.chart-row { display: grid; gap: 12px; margin-bottom: 14px; }
+.chart-row.col2 { grid-template-columns: 1fr 1fr; }
+.chart-row.col3 { grid-template-columns: 2fr 1fr; }
+.chart-row.col32 { grid-template-columns: 1fr 2fr; }
+.panel { background: #161b27; border: 1px solid #2a3045; border-radius: 8px; padding: 14px; }
+.panel-title { font-size: 11px; font-weight: 500; color: #8892b0; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.panel-title i { font-size: 14px; color: #4f8ef7; }
+.legend-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #8892b0; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.seg-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.seg-table th { text-align: left; color: #6b7494; font-weight: 500; padding: 6px 8px; border-bottom: 1px solid #2a3045; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.seg-table td { padding: 7px 8px; color: #c8cfe8; border-bottom: 1px solid #1e2535; }
+.seg-table tr:last-child td { border-bottom: none; }
+.badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
+.badge-green { background: #14532d; color: #4ade80; }
+.badge-amber { background: #451a03; color: #fbbf24; }
+.badge-red { background: #450a0a; color: #f87171; }
+.badge-blue { background: #1e3a5f; color: #60a5fa; }
+.bar-mini { height: 6px; border-radius: 3px; background: #2a3045; overflow: hidden; margin-top: 3px; }
+.bar-fill { height: 100%; border-radius: 3px; }
+.filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.chip { font-size: 11px; padding: 4px 10px; border-radius: 20px; cursor: pointer; border: 1px solid #2a3045; background: #1e2535; color: #8892b0; transition: all 0.15s; }
+.chip.active { background: #1e3a5f; border-color: #4f8ef7; color: #60a5fa; }
+.chip:hover:not(.active) { border-color: #4a5270; color: #c8cfe8; }
+.gauge-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 0; }
+.gauge-val { font-size: 28px; font-weight: 500; color: #4ade80; margin-top: 6px; }
+.gauge-sub { font-size: 11px; color: #6b7494; }
+.insight-list { display: flex; flex-direction: column; gap: 8px; }
+.insight { background: #1e2535; border-left: 3px solid #4f8ef7; border-radius: 0 6px 6px 0; padding: 8px 10px; font-size: 12px; color: #c8cfe8; line-height: 1.5; }
+.insight.warn { border-left-color: #fbbf24; }
+.insight.danger { border-left-color: #f87171; }
+.insight.success { border-left-color: #4ade80; }
+</style>
+
+<div class="db">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title"><i class="ti ti-chart-dots" aria-hidden="true" style="color:#4f8ef7;margin-right:6px"></i>Customer Intelligence Hub</div>
+    </div>
+    <div class="topbar-meta">Data as of May 2026 &nbsp;|&nbsp; 42,380 customers</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('overview',this)">Overview</div>
+    <div class="tab" onclick="switchTab('segmentation',this)">Segmentation</div>
+    <div class="tab" onclick="switchTab('retention',this)">Retention</div>
+    <div class="tab" onclick="switchTab('behavior',this)">Behavior</div>
+    <div class="tab" onclick="switchTab('strategy',this)">Strategy</div>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="section active" id="sec-overview">
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">Total Customers</div>
+          <div class="kpi-value">42,380</div>
+          <div class="kpi-delta up"><i class="ti ti-trending-up" style="font-size:13px"></i> +8.3% vs last yr</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Retention Rate</div>
+          <div class="kpi-value">76.4%</div>
+          <div class="kpi-delta up"><i class="ti ti-trending-up" style="font-size:13px"></i> +2.1 pts</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Avg CLV (12-mo)</div>
+          <div class="kpi-value">$1,847</div>
+          <div class="kpi-delta up"><i class="ti ti-trending-up" style="font-size:13px"></i> +$214</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Churn Rate</div>
+          <div class="kpi-value">23.6%</div>
+          <div class="kpi-delta down"><i class="ti ti-trending-down" style="font-size:13px"></i> -2.1 pts (good)</div>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">New Customers (MoM)</div>
+          <div class="kpi-value">3,214</div>
+          <div class="kpi-delta up"><i class="ti ti-trending-up" style="font-size:13px"></i> +12%</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Avg Purchase Freq</div>
+          <div class="kpi-value">4.2x</div>
+          <div class="kpi-delta warn"><i class="ti ti-minus" style="font-size:13px"></i> Flat vs prior mo</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">NPS Score</div>
+          <div class="kpi-value">+54</div>
+          <div class="kpi-delta up"><i class="ti ti-trending-up" style="font-size:13px"></i> +6 pts</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Avg Order Value</div>
+          <div class="kpi-value">$438</div>
+          <div class="kpi-delta up"><i class="ti ti-trending-up" style="font-size:13px"></i> +$31</div>
+        </div>
+      </div>
+      <div class="chart-row col2">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-chart-line" aria-hidden="true"></i>Monthly Revenue Trend</div>
+          <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:#4f8ef7"></span>Revenue</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Target</div>
+          </div>
+          <div style="position:relative;height:180px"><canvas id="ov1" role="img" aria-label="Monthly revenue trend Jan-Dec showing growth from 2.1M to 3.8M">Revenue grew from $2.1M in Jan to $3.8M in Dec.</canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-users" aria-hidden="true"></i>Customer Acquisition vs Churn</div>
+          <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Acquired</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Churned</div>
+          </div>
+          <div style="position:relative;height:180px"><canvas id="ov2" role="img" aria-label="Monthly acquisition vs churn showing net positive growth each month">Net customer growth positive each month.</canvas></div>
+        </div>
+      </div>
+      <div class="chart-row" style="grid-template-columns:1fr">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-layout-grid" aria-hidden="true"></i>Key Strategic Insights</div>
+          <div class="insight-list">
+            <div class="insight success">Champions segment grew 14% QoQ -- highest CLV cohort driving 38% of total revenue despite being only 12% of base.</div>
+            <div class="insight warn">At-Risk segment (18% of base) shows declining purchase frequency. Targeted win-back campaign recommended within 30 days.</div>
+            <div class="insight danger">Month-2 retention dropped to 61% -- onboarding experience likely responsible. Immediate UX review suggested.</div>
+            <div class="insight">New customer acquisition cost decreased 8% while CLV increased $214, improving CAC:CLV ratio to 1:4.2 (target: 1:3).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEGMENTATION -->
+    <div class="section" id="sec-segmentation">
+      <div class="filter-row">
+        <div class="chip active" onclick="toggleChip(this)">All Segments</div>
+        <div class="chip" onclick="toggleChip(this)">Champions</div>
+        <div class="chip" onclick="toggleChip(this)">Loyal</div>
+        <div class="chip" onclick="toggleChip(this)">At-Risk</div>
+        <div class="chip" onclick="toggleChip(this)">Hibernating</div>
+        <div class="chip" onclick="toggleChip(this)">Lost</div>
+      </div>
+      <div class="chart-row col3">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-chart-donut" aria-hidden="true"></i>RFM Segment Distribution</div>
+          <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:#4f8ef7"></span>Champions 12%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Loyal 22%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>Potential 18%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span>At-Risk 18%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>Hibernating 16%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Lost 14%</div>
+          </div>
+          <div style="position:relative;height:200px"><canvas id="seg1" role="img" aria-label="Donut chart showing RFM segments: Champions 12%, Loyal 22%, Potential 18%, At-Risk 18%, Hibernating 16%, Lost 14%">Champions 12%, Loyal 22%, Potential 18%, At-Risk 18%, Hibernating 16%, Lost 14%.</canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-table" aria-hidden="true"></i>Segment Performance</div>
+          <table class="seg-table">
+            <thead><tr><th>Segment</th><th>Count</th><th>Avg CLV</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Champions</td><td>5,086</td><td>$4,210</td><td><span class="badge badge-green">Strong</span></td></tr>
+              <tr><td>Loyal</td><td>9,324</td><td>$2,640</td><td><span class="badge badge-green">Growing</span></td></tr>
+              <tr><td>Potential</td><td>7,628</td><td>$1,180</td><td><span class="badge badge-blue">Nurture</span></td></tr>
+              <tr><td>At-Risk</td><td>7,628</td><td>$1,920</td><td><span class="badge badge-amber">Monitor</span></td></tr>
+              <tr><td>Hibernating</td><td>6,781</td><td>$640</td><td><span class="badge badge-amber">Re-engage</span></td></tr>
+              <tr><td>Lost</td><td>5,933</td><td>$210</td><td><span class="badge badge-red">Win-back</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="chart-row col2">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-cash" aria-hidden="true"></i>CLV by Segment</div>
+          <div style="position:relative;height:200px"><canvas id="seg2" role="img" aria-label="Bar chart of average CLV by customer segment from Champions at 4210 to Lost at 210">Champions highest CLV at $4,210, Lost lowest at $210.</canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-arrow-bar-up" aria-hidden="true"></i>Recency vs Frequency Matrix</div>
+          <div style="position:relative;height:200px"><canvas id="seg3" role="img" aria-label="Bubble chart showing recency vs frequency scores for each customer segment">Each bubble represents a customer segment positioned by recency and frequency scores.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RETENTION -->
+    <div class="section" id="sec-retention">
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi"><div class="kpi-label">Month-1 Retention</div><div class="kpi-value">82%</div><div class="kpi-delta up"><i class="ti ti-trending-up" style="font-size:13px"></i> +3 pts</div></div>
+        <div class="kpi"><div class="kpi-label">Month-3 Retention</div><div class="kpi-value">68%</div><div class="kpi-delta up"><i class="ti ti-trending-up" style="font-size:13px"></i> +5 pts</div></div>
+        <div class="kpi"><div class="kpi-label">Month-6 Retention</div><div class="kpi-value">54%</div><div class="kpi-delta warn"><i class="ti ti-minus" style="font-size:13px"></i> Flat</div></div>
+        <div class="kpi"><div class="kpi-label">Month-12 Retention</div><div class="kpi-value">41%</div><div class="kpi-delta down"><i class="ti ti-trending-down" style="font-size:13px"></i> -2 pts</div></div>
+      </div>
+      <div class="chart-row" style="grid-template-columns:1fr">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-chart-line" aria-hidden="true"></i>Cohort Retention Curve (by Acquisition Month)</div>
+          <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:#4f8ef7"></span>Jan 2026</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Feb 2026</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>Mar 2026</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span>Apr 2026</div>
+          </div>
+          <div style="position:relative;height:220px"><canvas id="ret1" role="img" aria-label="Line chart showing retention curves for Jan through Apr 2026 cohorts over 6 months">Jan cohort retains best, newer cohorts show similar but improving trajectories.</canvas></div>
+        </div>
+      </div>
+      <div class="chart-row col2">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-chart-bar" aria-hidden="true"></i>Churn Reason Breakdown</div>
+          <div style="position:relative;height:180px"><canvas id="ret2" role="img" aria-label="Horizontal bar showing top churn reasons: price sensitivity 34%, better competitor 28%, poor experience 18%, product fit 12%, other 8%">Price sensitivity is top churn reason at 34%.</canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-clock" aria-hidden="true"></i>Time-to-Churn Distribution</div>
+          <div style="position:relative;height:180px"><canvas id="ret3" role="img" aria-label="Bar chart showing distribution of days to churn: most churn between 30-90 days">Most churn occurs between 30 and 90 days after acquisition.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BEHAVIOR -->
+    <div class="section" id="sec-behavior">
+      <div class="chart-row col2">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-shopping-cart" aria-hidden="true"></i>Purchase Frequency Distribution</div>
+          <div style="position:relative;height:200px"><canvas id="beh1" role="img" aria-label="Bar chart of purchase frequency buckets: 1x, 2-3x, 4-6x, 7-10x, 10x plus per year">Most customers purchase 2-3 times per year.</canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-clock-hour-3" aria-hidden="true"></i>Engagement by Day of Week</div>
+          <div style="position:relative;height:200px"><canvas id="beh2" role="img" aria-label="Radar chart showing customer engagement levels across days of the week">Peak engagement on Tuesday and Wednesday.</canvas></div>
+        </div>
+      </div>
+      <div class="chart-row" style="grid-template-columns:1fr">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-device-analytics" aria-hidden="true"></i>Customer Journey Stage Funnel</div>
+          <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:#4f8ef7"></span>Awareness</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>Consideration</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Purchase</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span>Retention</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>Advocacy</div>
+          </div>
+          <div style="position:relative;height:180px"><canvas id="beh3" role="img" aria-label="Funnel bar chart from Awareness 100k through Advocacy 5k showing conversion at each stage">Funnel narrows significantly at Consideration and Purchase stages.</canvas></div>
+        </div>
+      </div>
+      <div class="chart-row col2">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-device-mobile" aria-hidden="true"></i>Channel Preference</div>
+          <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:#4f8ef7"></span>Mobile App 38%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Web 31%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>In-Store 18%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span>Phone 13%</div>
+          </div>
+          <div style="position:relative;height:150px"><canvas id="beh4" role="img" aria-label="Doughnut chart: Mobile App 38%, Web 31%, In-Store 18%, Phone 13%">Mobile app is the dominant channel at 38%.</canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-clock-2" aria-hidden="true"></i>Peak Purchase Hours</div>
+          <div style="position:relative;height:150px"><canvas id="beh5" role="img" aria-label="Bar chart of purchase volume by hour of day showing peaks at 10am-12pm and 7pm-9pm">Double peaks at 10am-12pm and 7pm-9pm.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STRATEGY -->
+    <div class="section" id="sec-strategy">
+      <div class="chart-row col2">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-target" aria-hidden="true"></i>Revenue Opportunity by Segment</div>
+          <div style="position:relative;height:200px"><canvas id="str1" role="img" aria-label="Stacked bar chart showing current revenue vs uplift opportunity for each segment">At-Risk and Hibernating segments hold highest untapped revenue opportunity.</canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-chart-scatter" aria-hidden="true"></i>CAC vs CLV by Segment</div>
+          <div style="position:relative;height:200px"><canvas id="str2" role="img" aria-label="Scatter chart of acquisition cost vs lifetime value by segment. Champions in top left represent best ROI">Champions show best ROI with low CAC and high CLV.</canvas></div>
+        </div>
+      </div>
+      <div class="chart-row" style="grid-template-columns:1fr">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-trending-up" aria-hidden="true"></i>Predictive Revenue Forecast (12-month)</div>
+          <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:#4f8ef7"></span>Actual</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Forecast</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#1e3a5f;border:1px dashed #4f8ef7"></span>Confidence band</div>
+          </div>
+          <div style="position:relative;height:200px"><canvas id="str3" role="img" aria-label="Line chart showing 12 month revenue actual and forecast with confidence band projecting 4.8M by Dec 2026">Forecast projects $4.8M by December 2026.</canvas></div>
+        </div>
+      </div>
+      <div class="chart-row" style="grid-template-columns:1fr">
+        <div class="panel">
+          <div class="panel-title"><i class="ti ti-bulb" aria-hidden="true"></i>Strategic Action Recommendations</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="insight success"><strong style="color:#4ade80">Champions:</strong> Launch referral program. CLV up 14% YoY -- leverage advocacy to reduce CAC. Target: 500 referrals/month.</div>
+            <div class="insight"><strong style="color:#60a5fa">Loyal:</strong> Cross-sell premium tier. 22% of base with $2,640 CLV -- upsell conversion estimated at 8-12%.</div>
+            <div class="insight warn"><strong style="color:#fbbf24">At-Risk:</strong> Deploy win-back email sequence + 15% discount offer within 14 days. Est. $2.1M recoverable revenue.</div>
+            <div class="insight danger"><strong style="color:#f87171">Hibernating/Lost:</strong> Segment by last purchase value -- re-engage top 20% with personalized offer. Rest to suppression list.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function switchTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('sec-' + id).classList.add('active');
+  if (!window._chartsInit) return;
+  if (!window._chartsInit[id]) { initCharts(id); window._chartsInit[id] = true; }
+}
+function toggleChip(el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+const gridLines = { color: 'rgba(255,255,255,0.05)' };
+const tickStyle = { color: '#6b7494', font: { size: 10 } };
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e2535', borderColor: '#2a3045', borderWidth: 1, titleColor: '#c8cfe8', bodyColor: '#8892b0', titleFont: { size: 11 }, bodyFont: { size: 11 } } },
+  scales: { x: { grid: gridLines, ticks: tickStyle }, y: { grid: gridLines, ticks: tickStyle } }
+};
+function mk(id, cfg) { const el = document.getElementById(id); if (el) return new Chart(el, cfg); }
+function initCharts(tab) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  if (tab === 'overview') {
+    mk('ov1', { type:'line', data:{ labels:months, datasets:[
+      { label:'Revenue', data:[2.1,2.3,2.4,2.6,2.7,2.9,3.0,3.2,3.3,3.5,3.6,3.8], borderColor:'#4f8ef7', backgroundColor:'rgba(79,142,247,0.08)', tension:0.4, fill:true, pointRadius:3, pointHoverRadius:5 },
+      { label:'Target', data:[2.0,2.2,2.3,2.5,2.6,2.8,2.9,3.1,3.2,3.4,3.5,3.7], borderColor:'#4ade80', borderDash:[4,4], tension:0.4, pointRadius:0, fill:false }
+    ]}, options:{...baseOpts, scales:{x:{grid:gridLines,ticks:tickStyle},y:{grid:gridLines,ticks:{...tickStyle,callback:v=>v+'M'}}}} });
+    mk('ov2', { type:'bar', data:{ labels:months.slice(0,10), datasets:[
+      { label:'Acquired', data:[3100,3400,2900,3600,3200,3800,4100,3700,3500,3214], backgroundColor:'#4ade80', borderRadius:3, barPercentage:0.5 },
+      { label:'Churned', data:[1200,1100,1350,980,1050,900,850,920,1000,980], backgroundColor:'#f87171', borderRadius:3, barPercentage:0.5 }
+    ]}, options:baseOpts });
+  }
+  if (tab === 'segmentation') {
+    mk('seg1', { type:'doughnut', data:{ labels:['Champions','Loyal','Potential','At-Risk','Hibernating','Lost'], datasets:[{ data:[12,22,18,18,16,14], backgroundColor:['#4f8ef7','#4ade80','#a78bfa','#fbbf24','#fb923c','#f87171'], borderWidth:2, borderColor:'#161b27', hoverOffset:8 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1e2535', borderColor:'#2a3045', borderWidth:1, titleColor:'#c8cfe8', bodyColor:'#8892b0' } } } });
+    mk('seg2', { type:'bar', data:{ labels:['Champions','Loyal','Potential','At-Risk','Hibernating','Lost'], datasets:[{ data:[4210,2640,1180,1920,640,210], backgroundColor:['#4f8ef7','#4ade80','#a78bfa','#fbbf24','#fb923c','#f87171'], borderRadius:4 }] }, options:{...baseOpts, indexAxis:'y', scales:{x:{grid:gridLines,ticks:{...tickStyle,callback:v=>'$'+v}},y:{grid:{display:false},ticks:tickStyle}}} });
+    mk('seg3', { type:'bubble', data:{ datasets:[
+      { label:'Champions', data:[{x:9.2,y:8.8,r:14}], backgroundColor:'rgba(79,142,247,0.7)' },
+      { label:'Loyal', data:[{x:7.4,y:7.2,r:18}], backgroundColor:'rgba(74,222,128,0.7)' },
+      { label:'Potential', data:[{x:5.1,y:4.8,r:16}], backgroundColor:'rgba(167,139,250,0.7)' },
+      { label:'At-Risk', data:[{x:3.2,y:6.1,r:16}], backgroundColor:'rgba(251,191,36,0.7)' },
+      { label:'Hibernating', data:[{x:2.0,y:2.4,r:14}], backgroundColor:'rgba(251,146,60,0.7)' },
+      { label:'Lost', data:[{x:1.2,y:1.1,r:12}], backgroundColor:'rgba(248,113,113,0.7)' }
+    ]}, options:{...baseOpts, plugins:{...baseOpts.plugins,legend:{display:true,labels:{color:'#8892b0',font:{size:10},boxWidth:10,padding:8}}}, scales:{x:{...baseOpts.scales?.x,title:{display:true,text:'Recency Score',color:'#6b7494',font:{size:10}},min:0,max:11,grid:gridLines,ticks:tickStyle},y:{...baseOpts.scales?.y,title:{display:true,text:'Frequency Score',color:'#6b7494',font:{size:10}},min:0,max:11,grid:gridLines,ticks:tickStyle}}} });
+  }
+  if (tab === 'retention') {
+    const rMo = ['M1','M2','M3','M4','M5','M6'];
+    mk('ret1', { type:'line', data:{ labels:rMo, datasets:[
+      { label:'Jan 2026', data:[100,61,54,49,45,41], borderColor:'#4f8ef7', tension:0.4, pointRadius:4, fill:false },
+      { label:'Feb 2026', data:[100,64,57,52,48,null], borderColor:'#4ade80', tension:0.4, pointRadius:4, fill:false },
+      { label:'Mar 2026', data:[100,67,60,55,null,null], borderColor:'#a78bfa', tension:0.4, pointRadius:4, fill:false },
+      { label:'Apr 2026', data:[100,69,62,null,null,null], borderColor:'#fbbf24', tension:0.4, pointRadius:4, fill:false }
+    ]}, options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,labels:{color:'#8892b0',font:{size:10},boxWidth:10,padding:8}}},scales:{x:{grid:gridLines,ticks:tickStyle},y:{grid:gridLines,ticks:{...tickStyle,callback:v=>v+'%'},min:0,max:105}}} });
+    mk('ret2', { type:'bar', data:{ labels:['Price sensitivity','Better competitor','Poor experience','Product fit','Other'], datasets:[{ data:[34,28,18,12,8], backgroundColor:['#f87171','#fb923c','#fbbf24','#a78bfa','#6b7494'], borderRadius:4 }] }, options:{...baseOpts,indexAxis:'y',scales:{x:{grid:gridLines,ticks:{...tickStyle,callback:v=>v+'%'},max:40},y:{grid:{display:false},ticks:tickStyle}}} });
+    mk('ret3', { type:'bar', data:{ labels:['0-14d','15-30d','31-60d','61-90d','91-180d','180d+'], datasets:[{ data:[8,14,22,19,24,13], backgroundColor:'rgba(79,142,247,0.7)', borderRadius:4 }] }, options:{...baseOpts,scales:{x:{grid:gridLines,ticks:tickStyle},y:{grid:gridLines,ticks:{...tickStyle,callback:v=>v+'%'}}}} });
+  }
+  if (tab === 'behavior') {
+    mk('beh1', { type:'bar', data:{ labels:['1x/yr','2-3x','4-6x','7-10x','10x+'], datasets:[{ data:[18,34,28,14,6], backgroundColor:['#6b7494','#4f8ef7','#4ade80','#a78bfa','#fbbf24'], borderRadius:4 }] }, options:{...baseOpts,scales:{x:{grid:{display:false},ticks:tickStyle},y:{grid:gridLines,ticks:{...tickStyle,callback:v=>v+'%'}}}} });
+    mk('beh2', { type:'radar', data:{ labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets:[{ data:[68,84,88,76,72,55,42], backgroundColor:'rgba(79,142,247,0.15)', borderColor:'#4f8ef7', pointBackgroundColor:'#4f8ef7', pointRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1e2535', borderColor:'#2a3045', borderWidth:1, titleColor:'#c8cfe8', bodyColor:'#8892b0' } }, scales:{ r:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ display:false }, pointLabels:{ color:'#8892b0', font:{size:10} }, angleLines:{ color:'rgba(255,255,255,0.05)' } } } } });
+    mk('beh3', { type:'bar', data:{ labels:['Awareness','Consideration','Purchase','Retention','Advocacy'], datasets:[{ data:[100,58,32,24,12], backgroundColor:['#4f8ef7','#a78bfa','#4ade80','#fbbf24','#fb923c'], borderRadius:4 }] }, options:{...baseOpts,scales:{x:{grid:{display:false},ticks:tickStyle},y:{grid:gridLines,ticks:{...tickStyle,callback:v=>v+'k'}}}} });
+    mk('beh4', { type:'doughnut', data:{ labels:['Mobile App','Web','In-Store','Phone'], datasets:[{ data:[38,31,18,13], backgroundColor:['#4f8ef7','#4ade80','#a78bfa','#fbbf24'], borderWidth:2, borderColor:'#161b27' }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1e2535', borderColor:'#2a3045', borderWidth:1 } } } });
+    mk('beh5', { type:'bar', data:{ labels:['6am','8am','10am','12pm','2pm','4pm','6pm','8pm','10pm'], datasets:[{ data:[12,28,72,68,45,38,52,84,48], backgroundColor:'rgba(167,139,250,0.7)', borderRadius:3 }] }, options:{...baseOpts,scales:{x:{grid:{display:false},ticks:tickStyle},y:{grid:gridLines,ticks:tickStyle}}} });
+  }
+  if (tab === 'strategy') {
+    const segs = ['Champions','Loyal','Potential','At-Risk','Hibernating'];
+    mk('str1', { type:'bar', data:{ labels:segs, datasets:[
+      { label:'Current Revenue', data:[2.1,2.4,0.9,1.5,0.4], backgroundColor:'#4f8ef7', borderRadius:3, stack:'a' },
+      { label:'Uplift Potential', data:[0.6,0.8,0.9,1.8,0.7], backgroundColor:'rgba(74,222,128,0.5)', borderRadius:3, stack:'a' }
+    ]}, options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,labels:{color:'#8892b0',font:{size:10},boxWidth:10,padding:8}}},scales:{x:{grid:{display:false},ticks:tickStyle,stacked:true},y:{grid:gridLines,stacked:true,ticks:{...tickStyle,callback:v=>'$'+v+'M'}}}} });
+    mk('str2', { type:'scatter', data:{ datasets:[
+      { label:'Champions', data:[{x:120,y:4210}], backgroundColor:'#4f8ef7', pointRadius:12 },
+      { label:'Loyal', data:[{x:180,y:2640}], backgroundColor:'#4ade80', pointRadius:10 },
+      { label:'Potential', data:[{x:210,y:1180}], backgroundColor:'#a78bfa', pointRadius:9 },
+      { label:'At-Risk', data:[{x:160,y:1920}], backgroundColor:'#fbbf24', pointRadius:10 },
+      { label:'Hibernating', data:[{x:250,y:640}], backgroundColor:'#fb923c', pointRadius:8 }
+    ]}, options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,labels:{color:'#8892b0',font:{size:10},boxWidth:10,padding:8}}},scales:{x:{grid:gridLines,ticks:{...tickStyle,callback:v=>'$'+v},title:{display:true,text:'CAC ($)',color:'#6b7494',font:{size:10}}},y:{grid:gridLines,ticks:{...tickStyle,callback:v=>'$'+v},title:{display:true,text:'CLV ($)',color:'#6b7494',font:{size:10}}}}} });
+    const allMo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const actual = [2.1,2.3,2.4,2.6,2.7,null,null,null,null,null,null,null];
+    const forecast = [null,null,null,null,2.7,3.0,3.2,3.4,3.6,3.9,4.2,4.8];
+    mk('str3', { type:'line', data:{ labels:allMo, datasets:[
+      { label:'Actual', data:actual, borderColor:'#4f8ef7', backgroundColor:'rgba(79,142,247,0.08)', tension:0.4, fill:true, pointRadius:4 },
+      { label:'Forecast', data:forecast, borderColor:'#4ade80', borderDash:[6,3], tension:0.4, pointRadius:3, fill:false },
+      { label:'Upper CI', data:[null,null,null,null,2.7,3.2,3.5,3.8,4.1,4.4,4.8,5.3], borderColor:'transparent', backgroundColor:'rgba(74,222,128,0.08)', tension:0.4, fill:'+1', pointRadius:0 },
+      { label:'Lower CI', data:[null,null,null,null,2.7,2.8,3.0,3.1,3.2,3.5,3.7,4.3], borderColor:'transparent', tension:0.4, fill:false, pointRadius:0 }
+    ]}, options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:false}},scales:{x:{grid:gridLines,ticks:tickStyle},y:{grid:gridLines,ticks:{...tickStyle,callback:v=>'$'+v+'M'}}}} });
+  }
+}
+window._chartsInit = { overview: false, segmentation: false, retention: false, behavior: false, strategy: false };
+window.addEventListener('load', () => { initCharts('overview'); window._chartsInit.overview = true; });
+</script>

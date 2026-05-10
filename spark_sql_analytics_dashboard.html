@@ -1,0 +1,475 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{background:#0d1117;border-radius:12px;overflow:hidden;font-family:var(--font-sans);color:#c9d1d9;min-height:860px}
+.topbar{background:#161b22;border-bottom:1px solid #21262d;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#e6edf3}
+.logo-spark{background:#e25822;color:#fff;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;letter-spacing:0.4px}
+.logo-sql{background:#1f6feb;color:#fff;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
+.cluster-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:#8b949e;background:#21262d;padding:4px 10px;border-radius:20px}
+.cluster-dot{width:7px;height:7px;border-radius:50%;background:#3fb950}
+.tabs{display:flex;background:#161b22;border-bottom:1px solid #21262d;padding:0 16px;gap:0}
+.tab{font-size:11px;font-weight:500;padding:9px 14px;cursor:pointer;color:#8b949e;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap}
+.tab.on{color:#58a6ff;border-bottom-color:#58a6ff}
+.tab:hover:not(.on){color:#c9d1d9}
+.body{padding:14px}
+.sec{display:none}.sec.on{display:block}
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kcard{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:10px 12px}
+.klabel{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:3px}
+.kval{font-size:20px;font-weight:500;color:#e6edf3;line-height:1.1}
+.kdelta{font-size:10px;margin-top:3px}
+.green{color:#3fb950}.amber{color:#d29922}.red{color:#f85149}.blue{color:#58a6ff}
+.panel{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:14px;margin-bottom:12px}
+.ptitle{font-size:10px;font-weight:500;color:#8b949e;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ptitle i{font-size:13px;color:#58a6ff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+.editor-wrap{background:#0d1117;border:1px solid #21262d;border-radius:6px;overflow:hidden;margin-bottom:10px}
+.editor-topbar{background:#161b22;border-bottom:1px solid #21262d;padding:6px 10px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.editor-tabs{display:flex;gap:4px}
+.etab{font-size:10px;padding:3px 10px;border-radius:4px;cursor:pointer;color:#8b949e;border:1px solid transparent;transition:all 0.15s}
+.etab.on{background:#1f6feb22;border-color:#1f6feb55;color:#58a6ff}
+.etab:hover:not(.on){color:#c9d1d9}
+.run-btn{font-size:10px;font-weight:500;padding:4px 12px;border-radius:4px;cursor:pointer;background:#238636;color:#fff;border:none;display:flex;align-items:center;gap:4px;transition:opacity 0.15s}
+.run-btn:hover{opacity:0.85}
+.code-area{padding:12px;font-family:var(--font-mono);font-size:11px;line-height:1.7;color:#c9d1d9;min-height:110px;white-space:pre;overflow-x:auto}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.str{color:#a5d6ff}.cm{color:#6e7681;font-style:italic}.num{color:#f2cc60}.op{color:#c9d1d9}
+.result-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+.result-table th{text-align:left;padding:6px 8px;background:#21262d;color:#8b949e;font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid #30363d}
+.result-table td{padding:6px 8px;color:#c9d1d9;border-bottom:1px solid #21262d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.result-table tr:last-child td{border-bottom:none}
+.result-table tr:hover td{background:#1c2128}
+.badge{display:inline-block;font-size:9px;font-weight:500;padding:1px 7px;border-radius:10px}
+.badge-g{background:#1a3a24;color:#3fb950}
+.badge-b{background:#1b2f4e;color:#58a6ff}
+.badge-a{background:#2d1f0e;color:#d29922}
+.badge-r{background:#2d1216;color:#f85149}
+.plan-node{background:#161b22;border:1px solid #21262d;border-radius:6px;padding:8px 10px;font-size:10px;margin-bottom:2px}
+.plan-op{font-weight:500;color:#d2a8ff}
+.plan-detail{color:#8b949e;font-size:9px;margin-top:2px;font-family:var(--font-mono)}
+.plan-arrow{text-align:center;color:#21262d;font-size:14px;line-height:1}
+.stage-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #21262d;font-size:11px}
+.stage-row:last-child{border-bottom:none}
+.stage-id{background:#21262d;color:#8b949e;font-size:9px;padding:2px 6px;border-radius:4px;font-family:var(--font-mono);min-width:50px;text-align:center}
+.stage-bar-wrap{flex:1;background:#0d1117;border-radius:3px;height:8px;overflow:hidden}
+.stage-bar{height:100%;border-radius:3px;background:#1f6feb}
+.stage-status{font-size:10px;min-width:55px;text-align:right}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:#8b949e}
+.leg-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+</style>
+
+<h2 class="sr-only">Spark SQL analytics dashboard showing query editor, execution plan, cluster metrics, and results for e-commerce data.</h2>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">
+      <span class="logo-spark">Spark</span>
+      <span class="logo-sql">SQL</span>
+      <span style="color:#8b949e;font-size:12px">Analytics Dashboard</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="cluster-pill"><span class="cluster-dot"></span>cluster-prod-01 &nbsp;·&nbsp; 8 executors &nbsp;·&nbsp; 64 cores</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="sw('editor',this)"><i class="ti ti-code" style="font-size:12px;margin-right:4px" aria-hidden="true"></i>Query editor</div>
+    <div class="tab" onclick="sw('results',this)"><i class="ti ti-table" style="font-size:12px;margin-right:4px" aria-hidden="true"></i>Results &amp; charts</div>
+    <div class="tab" onclick="sw('plan',this)"><i class="ti ti-sitemap" style="font-size:12px;margin-right:4px" aria-hidden="true"></i>Execution plan</div>
+    <div class="tab" onclick="sw('cluster',this)"><i class="ti ti-server" style="font-size:12px;margin-right:4px" aria-hidden="true"></i>Cluster metrics</div>
+  </div>
+
+  <div class="body">
+
+    <!-- QUERY EDITOR -->
+    <div class="sec on" id="sec-editor">
+      <div class="krow">
+        <div class="kcard"><div class="klabel">Tables loaded</div><div class="kval">6</div><div class="kdelta blue">orders, customers, products, events, sessions, returns</div></div>
+        <div class="kcard"><div class="klabel">Total records</div><div class="kval">48.2M</div><div class="kdelta green">across all partitions</div></div>
+        <div class="kcard"><div class="klabel">Last query time</div><div class="kval">1.4s</div><div class="kdelta green">optimized with AQE</div></div>
+        <div class="kcard"><div class="klabel">Cache hit</div><div class="kval">87%</div><div class="kdelta green">RDD cache active</div></div>
+      </div>
+
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-tabs">
+            <div class="etab on" onclick="loadQ(0,this)">Window functions</div>
+            <div class="etab" onclick="loadQ(1,this)">CTE + aggregation</div>
+            <div class="etab" onclick="loadQ(2,this)">Partitioned join</div>
+            <div class="etab" onclick="loadQ(3,this)">Cohort analysis</div>
+          </div>
+          <button class="run-btn" onclick="runQuery()"><i class="ti ti-player-play" style="font-size:11px" aria-hidden="true"></i>Run query</button>
+        </div>
+        <div class="code-area" id="code-display"></div>
+      </div>
+
+      <div class="panel" id="run-status" style="display:none">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+          <i class="ti ti-check" style="color:#3fb950;font-size:15px" aria-hidden="true"></i>
+          <span style="color:#3fb950;font-weight:500">Query completed</span>
+          <span style="color:#8b949e">in <span id="qtime">1.4s</span> &nbsp;·&nbsp; <span id="qrows">--</span> rows returned &nbsp;·&nbsp; <span id="qshuffled">--</span> shuffled</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ptitle"><i class="ti ti-database" aria-hidden="true"></i>Schema browser</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:8px">
+            <div style="font-size:10px;font-weight:500;color:#d2a8ff;margin-bottom:6px;font-family:var(--font-mono)">orders</div>
+            <div style="font-size:10px;color:#8b949e;line-height:1.9;font-family:var(--font-mono)">
+              order_id <span style="color:#f2cc60">BIGINT</span><br>
+              customer_id <span style="color:#f2cc60">BIGINT</span><br>
+              order_date <span style="color:#f2cc60">DATE</span><br>
+              amount <span style="color:#f2cc60">DOUBLE</span><br>
+              status <span style="color:#f2cc60">STRING</span><br>
+              <span style="color:#3fb950">PARTITIONED BY (year, month)</span>
+            </div>
+          </div>
+          <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:8px">
+            <div style="font-size:10px;font-weight:500;color:#d2a8ff;margin-bottom:6px;font-family:var(--font-mono)">customers</div>
+            <div style="font-size:10px;color:#8b949e;line-height:1.9;font-family:var(--font-mono)">
+              customer_id <span style="color:#f2cc60">BIGINT</span><br>
+              segment <span style="color:#f2cc60">STRING</span><br>
+              region <span style="color:#f2cc60">STRING</span><br>
+              signup_date <span style="color:#f2cc60">DATE</span><br>
+              clv <span style="color:#f2cc60">DOUBLE</span><br>
+              <span style="color:#3fb950">PARTITIONED BY (region)</span>
+            </div>
+          </div>
+          <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:8px">
+            <div style="font-size:10px;font-weight:500;color:#d2a8ff;margin-bottom:6px;font-family:var(--font-mono)">events</div>
+            <div style="font-size:10px;color:#8b949e;line-height:1.9;font-family:var(--font-mono)">
+              event_id <span style="color:#f2cc60">BIGINT</span><br>
+              customer_id <span style="color:#f2cc60">BIGINT</span><br>
+              event_type <span style="color:#f2cc60">STRING</span><br>
+              event_ts <span style="color:#f2cc60">TIMESTAMP</span><br>
+              session_id <span style="color:#f2cc60">STRING</span><br>
+              <span style="color:#3fb950">PARTITIONED BY (event_date)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS & CHARTS -->
+    <div class="sec" id="sec-results">
+      <div class="grid3">
+        <div class="panel">
+          <div class="ptitle"><i class="ti ti-chart-bar" aria-hidden="true"></i>Revenue by segment (window query)</div>
+          <div class="legend-row">
+            <div class="leg"><span class="leg-sq" style="background:#58a6ff"></span>Champions</div>
+            <div class="leg"><span class="leg-sq" style="background:#3fb950"></span>Loyal</div>
+            <div class="leg"><span class="leg-sq" style="background:#d2a8ff"></span>Potential</div>
+            <div class="leg"><span class="leg-sq" style="background:#d29922"></span>At-risk</div>
+          </div>
+          <div style="position:relative;height:200px"><canvas id="c1" role="img" aria-label="Bar chart of revenue by customer segment from Spark SQL window query">Champions segment has highest revenue at 4.2M.</canvas></div>
+        </div>
+        <div class="panel">
+          <div class="ptitle"><i class="ti ti-chart-donut" aria-hidden="true"></i>Order status split</div>
+          <div class="legend-row">
+            <div class="leg"><span class="leg-sq" style="background:#3fb950"></span>Completed 68%</div>
+            <div class="leg"><span class="leg-sq" style="background:#d29922"></span>Pending 18%</div>
+            <div class="leg"><span class="leg-sq" style="background:#f85149"></span>Cancelled 14%</div>
+          </div>
+          <div style="position:relative;height:200px"><canvas id="c2" role="img" aria-label="Doughnut chart of order status: Completed 68%, Pending 18%, Cancelled 14%">Most orders are completed at 68%.</canvas></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ptitle"><i class="ti ti-chart-line" aria-hidden="true"></i>Monthly revenue with running total (window function: SUM OVER PARTITION)</div>
+        <div class="legend-row">
+          <div class="leg"><span class="leg-sq" style="background:#58a6ff"></span>Monthly revenue</div>
+          <div class="leg"><span class="leg-sq" style="background:#3fb950"></span>Running total</div>
+        </div>
+        <div style="position:relative;height:200px"><canvas id="c3" role="img" aria-label="Line chart of monthly revenue and running total for 2025, showing growth from Jan to Dec">Running total reaches 38M by December 2025.</canvas></div>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="ptitle"><i class="ti ti-table" aria-hidden="true"></i>Sample result rows</div>
+          <div style="overflow:hidden">
+          <table class="result-table">
+            <thead><tr><th>customer_id</th><th>segment</th><th>revenue</th><th>rank</th><th>pct_of_total</th></tr></thead>
+            <tbody>
+              <tr><td>10042</td><td><span class="badge badge-b">Champions</span></td><td>$4,210</td><td>1</td><td>12.4%</td></tr>
+              <tr><td>10187</td><td><span class="badge badge-b">Champions</span></td><td>$3,980</td><td>2</td><td>11.7%</td></tr>
+              <tr><td>10291</td><td><span class="badge badge-g">Loyal</span></td><td>$2,640</td><td>3</td><td>7.8%</td></tr>
+              <tr><td>10503</td><td><span class="badge badge-g">Loyal</span></td><td>$2,440</td><td>4</td><td>7.2%</td></tr>
+              <tr><td>10714</td><td><span class="badge badge-a">At-risk</span></td><td>$1,920</td><td>5</td><td>5.7%</td></tr>
+              <tr><td>10882</td><td><span class="badge badge-a">At-risk</span></td><td>$1,740</td><td>6</td><td>5.1%</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="ptitle"><i class="ti ti-chart-bar" aria-hidden="true"></i>Purchases per region (partitioned join)</div>
+          <div style="position:relative;height:190px"><canvas id="c4" role="img" aria-label="Horizontal bar chart of purchase counts by region: West, East, Central, North, South">West region leads with highest purchase count.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXECUTION PLAN -->
+    <div class="sec" id="sec-plan">
+      <div class="grid2">
+        <div class="panel">
+          <div class="ptitle"><i class="ti ti-sitemap" aria-hidden="true"></i>Logical plan (optimized)</div>
+          <div class="plan-node"><div class="plan-op">Project</div><div class="plan-detail">customer_id, segment, revenue, RANK() OVER w, revenue/total_rev</div></div>
+          <div class="plan-arrow">|</div>
+          <div class="plan-node"><div class="plan-op">Window</div><div class="plan-detail">PARTITION BY segment ORDER BY revenue DESC ROWS UNBOUNDED</div></div>
+          <div class="plan-arrow">|</div>
+          <div class="plan-node"><div class="plan-op">Filter</div><div class="plan-detail">order_date BETWEEN '2025-01-01' AND '2025-12-31'</div></div>
+          <div class="plan-arrow">|</div>
+          <div class="plan-node"><div class="plan-op">BroadcastHashJoin</div><div class="plan-detail">customers.customer_id = orders.customer_id [inner]</div></div>
+          <div class="plan-arrow">|</div>
+          <div class="plan-node"><div class="plan-op">Scan parquet orders</div><div class="plan-detail">PartitionFilters: [year=2025] PushedFilters: [IsNotNull(customer_id)]</div></div>
+        </div>
+        <div class="panel">
+          <div class="ptitle"><i class="ti ti-adjustments" aria-hidden="true"></i>AQE optimizations applied</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="background:#1a3a24;border:1px solid #2ea04326;border-radius:6px;padding:8px 10px;font-size:11px">
+              <div style="color:#3fb950;font-weight:500;margin-bottom:2px">Partition coalescing</div>
+              <div style="color:#8b949e;font-size:10px">Reduced 200 shuffle partitions to 42 after join. Skew detected and split.</div>
+            </div>
+            <div style="background:#1a3a24;border:1px solid #2ea04326;border-radius:6px;padding:8px 10px;font-size:11px">
+              <div style="color:#3fb950;font-weight:500;margin-bottom:2px">Broadcast join conversion</div>
+              <div style="color:#8b949e;font-size:10px">customers table (14MB) auto-broadcast, eliminating shuffle on larger orders table.</div>
+            </div>
+            <div style="background:#1b2f4e;border:1px solid #58a6ff26;border-radius:6px;padding:8px 10px;font-size:11px">
+              <div style="color:#58a6ff;font-weight:500;margin-bottom:2px">Predicate pushdown</div>
+              <div style="color:#8b949e;font-size:10px">year=2025 partition filter applied before scan, skipping 7 of 8 partition folders.</div>
+            </div>
+            <div style="background:#1b2f4e;border:1px solid #58a6ff26;border-radius:6px;padding:8px 10px;font-size:11px">
+              <div style="color:#58a6ff;font-weight:500;margin-bottom:2px">Column pruning</div>
+              <div style="color:#8b949e;font-size:10px">Only 4 of 12 columns read from parquet, reducing I/O by 67%.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ptitle"><i class="ti ti-list" aria-hidden="true"></i>Stage execution timeline</div>
+        <div>
+          <div class="stage-row"><div class="stage-id">Stage 0</div><div style="font-size:10px;color:#8b949e;min-width:140px">Scan parquet (orders)</div><div class="stage-bar-wrap"><div class="stage-bar" style="width:18%;background:#d2a8ff"></div></div><div style="font-size:10px;color:#8b949e;min-width:32px">0.24s</div><div class="stage-status"><span class="badge badge-g">done</span></div></div>
+          <div class="stage-row"><div class="stage-id">Stage 1</div><div style="font-size:10px;color:#8b949e;min-width:140px">Broadcast join</div><div class="stage-bar-wrap"><div class="stage-bar" style="width:14%;background:#58a6ff"></div></div><div style="font-size:10px;color:#8b949e;min-width:32px">0.18s</div><div class="stage-status"><span class="badge badge-g">done</span></div></div>
+          <div class="stage-row"><div class="stage-id">Stage 2</div><div style="font-size:10px;color:#8b949e;min-width:140px">Filter + aggregate</div><div class="stage-bar-wrap"><div class="stage-bar" style="width:30%;background:#58a6ff"></div></div><div style="font-size:10px;color:#8b949e;min-width:32px">0.40s</div><div class="stage-status"><span class="badge badge-g">done</span></div></div>
+          <div class="stage-row"><div class="stage-id">Stage 3</div><div style="font-size:10px;color:#8b949e;min-width:140px">Window shuffle</div><div class="stage-bar-wrap"><div class="stage-bar" style="width:35%;background:#d29922"></div></div><div style="font-size:10px;color:#8b949e;min-width:32px">0.46s</div><div class="stage-status"><span class="badge badge-g">done</span></div></div>
+          <div class="stage-row"><div class="stage-id">Stage 4</div><div style="font-size:10px;color:#8b949e;min-width:140px">Project + collect</div><div class="stage-bar-wrap"><div class="stage-bar" style="width:9%;background:#3fb950"></div></div><div style="font-size:10px;color:#8b949e;min-width:32px">0.12s</div><div class="stage-status"><span class="badge badge-g">done</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLUSTER METRICS -->
+    <div class="sec" id="sec-cluster">
+      <div class="krow">
+        <div class="kcard"><div class="klabel">Active executors</div><div class="kval">8</div><div class="kdelta green">All healthy</div></div>
+        <div class="kcard"><div class="klabel">Total cores</div><div class="kval">64</div><div class="kdelta blue">48 in use</div></div>
+        <div class="kcard"><div class="klabel">Memory used</div><div class="kval">187 GB</div><div class="kdelta amber">of 256 GB</div></div>
+        <div class="kcard"><div class="klabel">GC overhead</div><div class="kval">1.8%</div><div class="kdelta green">within threshold</div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="ptitle"><i class="ti ti-cpu" aria-hidden="true"></i>Executor CPU utilization (%)</div>
+          <div style="position:relative;height:190px"><canvas id="c5" role="img" aria-label="Bar chart showing CPU utilization across 8 executors ranging from 68 to 92 percent">Most executors running at 75 to 92 percent CPU utilization.</canvas></div>
+        </div>
+        <div class="panel">
+          <div class="ptitle"><i class="ti ti-chart-area" aria-hidden="true"></i>Shuffle read/write (MB/s)</div>
+          <div class="legend-row">
+            <div class="leg"><span class="leg-sq" style="background:#58a6ff"></span>Read</div>
+            <div class="leg"><span class="leg-sq" style="background:#f85149"></span>Write</div>
+          </div>
+          <div style="position:relative;height:175px"><canvas id="c6" role="img" aria-label="Line chart of shuffle read and write throughput in megabytes per second over time">Peak shuffle write at 320 MB/s during stage 3 window shuffle.</canvas></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ptitle"><i class="ti ti-database" aria-hidden="true"></i>Executor memory breakdown</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;text-align:center">
+            <div style="font-size:10px;color:#8b949e;margin-bottom:4px">Storage mem</div>
+            <div style="font-size:18px;font-weight:500;color:#d2a8ff">78 GB</div>
+            <div style="font-size:10px;color:#8b949e;margin-top:2px">RDD cache</div>
+          </div>
+          <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;text-align:center">
+            <div style="font-size:10px;color:#8b949e;margin-bottom:4px">Execution mem</div>
+            <div style="font-size:18px;font-weight:500;color:#58a6ff">62 GB</div>
+            <div style="font-size:10px;color:#8b949e;margin-top:2px">shuffle/sort</div>
+          </div>
+          <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;text-align:center">
+            <div style="font-size:10px;color:#8b949e;margin-bottom:4px">User memory</div>
+            <div style="font-size:18px;font-weight:500;color:#3fb950">32 GB</div>
+            <div style="font-size:10px;color:#8b949e;margin-top:2px">UDFs / data</div>
+          </div>
+          <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;text-align:center">
+            <div style="font-size:10px;color:#8b949e;margin-bottom:4px">Reserved</div>
+            <div style="font-size:18px;font-weight:500;color:#d29922">15 GB</div>
+            <div style="font-size:10px;color:#8b949e;margin-top:2px">system overhead</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ptitle"><i class="ti ti-activity" aria-hidden="true"></i>Task distribution across executors</div>
+        <div style="position:relative;height:160px"><canvas id="c7" role="img" aria-label="Stacked bar chart showing completed, running, and failed tasks per executor">All executors show mostly completed tasks with zero failures.</canvas></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const queries = [
+`-- Window functions: rank customers by revenue within segment
+SELECT
+  c.customer_id,
+  c.segment,
+  SUM(o.amount)                          AS revenue,
+  RANK() OVER (
+    PARTITION BY c.segment
+    ORDER BY SUM(o.amount) DESC
+  )                                       AS segment_rank,
+  ROUND(SUM(o.amount) /
+    SUM(SUM(o.amount)) OVER (), 4)        AS pct_of_total
+FROM orders o
+JOIN customers c USING (customer_id)
+WHERE o.order_date BETWEEN '2025-01-01'
+                       AND '2025-12-31'
+GROUP BY c.customer_id, c.segment`,
+
+`-- CTE + aggregation: monthly revenue with MoM growth
+WITH monthly AS (
+  SELECT
+    DATE_TRUNC('month', order_date)       AS month,
+    SUM(amount)                           AS revenue
+  FROM orders
+  WHERE status = 'completed'
+  GROUP BY 1
+),
+lagged AS (
+  SELECT *,
+    LAG(revenue) OVER (ORDER BY month)   AS prev_rev
+  FROM monthly
+)
+SELECT
+  month,
+  revenue,
+  ROUND((revenue - prev_rev)
+        / prev_rev * 100, 2)             AS mom_growth_pct
+FROM lagged
+ORDER BY month`,
+
+`-- Partitioned broadcast join: orders x customers by region
+SELECT /*+ BROADCAST(c) */
+  c.region,
+  c.segment,
+  COUNT(DISTINCT o.order_id)             AS order_count,
+  SUM(o.amount)                          AS total_revenue,
+  AVG(o.amount)                          AS avg_order_value
+FROM orders o
+JOIN customers c USING (customer_id)
+WHERE o.year = 2025
+  AND o.status != 'cancelled'
+GROUP BY c.region, c.segment
+ORDER BY total_revenue DESC`,
+
+`-- Cohort retention: first purchase to repeat purchase
+WITH first_order AS (
+  SELECT customer_id,
+         MIN(order_date) AS cohort_date
+  FROM orders
+  GROUP BY customer_id
+),
+cohort AS (
+  SELECT
+    DATE_TRUNC('month', f.cohort_date)   AS cohort_month,
+    DATEDIFF(MONTH, f.cohort_date,
+             o.order_date)               AS period,
+    COUNT(DISTINCT o.customer_id)        AS customers
+  FROM orders o
+  JOIN first_order f USING (customer_id)
+  GROUP BY 1, 2
+)
+SELECT cohort_month, period,
+  customers,
+  ROUND(customers /
+    FIRST_VALUE(customers) OVER (
+      PARTITION BY cohort_month
+      ORDER BY period
+    ) * 100, 1)                          AS retention_pct
+FROM cohort
+ORDER BY cohort_month, period`
+];
+
+const qMeta = [
+  {time:'1.4s', rows:'12,840 rows', shuffled:'284 MB shuffled'},
+  {time:'0.8s', rows:'12 rows', shuffled:'42 MB shuffled'},
+  {time:'2.1s', rows:'20 rows', shuffled:'520 MB shuffled'},
+  {time:'3.2s', rows:'60 rows', shuffled:'840 MB shuffled'}
+];
+
+let activeQ = 0;
+
+function colorize(sql) {
+  const kws = /\b(SELECT|FROM|WHERE|JOIN|ON|USING|GROUP BY|ORDER BY|PARTITION BY|OVER|WITH|AS|AND|OR|NOT|IN|BETWEEN|DISTINCT|ROUND|COUNT|SUM|AVG|MIN|MAX|DATE_TRUNC|DATEDIFF|LAG|RANK|FIRST_VALUE|LEAD|ROW_NUMBER|NTILE|PERCENT_RANK|CUME_DIST|NULLIF|COALESCE|CASE|WHEN|THEN|ELSE|END|INNER|LEFT|RIGHT|OUTER|CROSS|BROADCAST|ROWS|UNBOUNDED|PRECEDING|FOLLOWING|CURRENT ROW|LIMIT|HAVING|UNION|ALL|EXISTS|INSERT|INTO|VALUES|CREATE|TABLE|TEMP|VIEW|DROP|ALTER|IF)\b/g;
+  const fns = /\b(DATE_TRUNC|DATEDIFF|LAG|RANK|FIRST_VALUE|SUM|AVG|COUNT|MAX|MIN|ROUND|COALESCE)\b/g;
+  return sql
+    .replace(/--[^\n]*/g, m => `<span class="cm">${m}</span>`)
+    .replace(/\/\*[^*]*\*\//g, m => `<span class="cm">${m}</span>`)
+    .replace(/'[^']*'/g, m => `<span class="str">${m}</span>`)
+    .replace(/\b\d+(\.\d+)?\b/g, m => `<span class="num">${m}</span>`)
+    .replace(kws, m => `<span class="kw">${m}</span>`);
+}
+
+function loadQ(i, el) {
+  activeQ = i;
+  document.querySelectorAll('.etab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('code-display').innerHTML = colorize(queries[i]);
+  document.getElementById('run-status').style.display = 'none';
+}
+
+function runQuery() {
+  const s = document.getElementById('run-status');
+  s.style.display = 'block';
+  document.getElementById('qtime').textContent = qMeta[activeQ].time;
+  document.getElementById('qrows').textContent = qMeta[activeQ].rows;
+  document.getElementById('qshuffled').textContent = qMeta[activeQ].shuffled;
+}
+
+loadQ(0, document.querySelector('.etab'));
+
+function sw(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('sec-' + id).classList.add('on');
+  if (!window._ci) { window._ci = {}; }
+  if (!window._ci[id]) { initC(id); window._ci[id] = true; }
+}
+
+const dkGrid = { color: 'rgba(255,255,255,0.06)' };
+const dkTick = { color: '#8b949e', font: { size: 10 } };
+const dkOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { backgroundColor: '#161b22', borderColor: '#30363d', borderWidth: 1, titleColor: '#e6edf3', bodyColor: '#8b949e', titleFont: { size: 11 }, bodyFont: { size: 11 } } },
+  scales: { x: { grid: dkGrid, ticks: dkTick }, y: { grid: dkGrid, ticks: dkTick } }
+};
+function mk(id, cfg) { const el = document.getElementById(id); if (el) return new Chart(el, cfg); }
+
+function initC(tab) {
+  if (tab === 'results') {
+    mk('c1', { type: 'bar', data: { labels: ['Champions', 'Loyal', 'Potential', 'At-risk'], datasets: [{ data: [4.2, 2.6, 1.2, 1.9], backgroundColor: ['#58a6ff', '#3fb950', '#d2a8ff', '#d29922'], borderRadius: 4 }] }, options: { ...dkOpts, scales: { x: { grid: { display: false }, ticks: dkTick }, y: { grid: dkGrid, ticks: { ...dkTick, callback: v => '$' + v + 'M' } } } } });
+    mk('c2', { type: 'doughnut', data: { labels: ['Completed', 'Pending', 'Cancelled'], datasets: [{ data: [68, 18, 14], backgroundColor: ['#3fb950', '#d29922', '#f85149'], borderWidth: 2, borderColor: '#0d1117', hoverOffset: 6 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { display: false }, tooltip: { backgroundColor: '#161b22', borderColor: '#30363d', borderWidth: 1, titleColor: '#e6edf3', bodyColor: '#8b949e' } } } });
+    const mo = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const rev = [2.1, 2.4, 2.8, 3.0, 3.2, 3.4, 3.1, 3.5, 3.7, 3.9, 4.1, 4.3];
+    const run = rev.reduce((a, v, i) => { a.push(+(( (a[i - 1] || 0) + v)).toFixed(1)); return a; }, []);
+    mk('c3', { type: 'line', data: { labels: mo, datasets: [{ label: 'Monthly', data: rev, borderColor: '#58a6ff', backgroundColor: 'rgba(88,166,255,0.08)', tension: 0.4, fill: true, pointRadius: 3 }, { label: 'Running total', data: run, borderColor: '#3fb950', borderDash: [5, 3], tension: 0.4, pointRadius: 0, fill: false }] }, options: { ...dkOpts, plugins: { ...dkOpts.plugins, legend: { display: false } }, scales: { x: { grid: dkGrid, ticks: dkTick }, y: { grid: dkGrid, ticks: { ...dkTick, callback: v => '$' + v + 'M' } } } } });
+    mk('c4', { type: 'bar', data: { labels: ['West', 'East', 'Central', 'North', 'South'], datasets: [{ data: [9800, 8400, 7200, 6100, 5300], backgroundColor: 'rgba(88,166,255,0.7)', borderRadius: 3 }] }, options: { ...dkOpts, indexAxis: 'y', scales: { x: { grid: dkGrid, ticks: { ...dkTick, callback: v => (v / 1000).toFixed(0) + 'k' } }, y: { grid: { display: false }, ticks: dkTick } } } });
+  }
+  if (tab === 'cluster') {
+    const execs = ['Ex-1', 'Ex-2', 'Ex-3', 'Ex-4', 'Ex-5', 'Ex-6', 'Ex-7', 'Ex-8'];
+    mk('c5', { type: 'bar', data: { labels: execs, datasets: [{ data: [88, 92, 75, 84, 78, 90, 68, 82], backgroundColor: execs.map((_, i) => ['#3fb950', '#58a6ff', '#d29922', '#3fb950', '#3fb950', '#58a6ff', '#d29922', '#3fb950'][i]), borderRadius: 4 }] }, options: { ...dkOpts, scales: { x: { grid: { display: false }, ticks: dkTick }, y: { grid: dkGrid, ticks: { ...dkTick, callback: v => v + '%' }, max: 100 } } } });
+    const ticks12 = Array.from({ length: 12 }, (_, i) => i + 's');
+    mk('c6', { type: 'line', data: { labels: ticks12, datasets: [{ label: 'Read', data: [40, 80, 180, 280, 320, 260, 180, 120, 80, 60, 40, 30], borderColor: '#58a6ff', tension: 0.4, pointRadius: 0, fill: false }, { label: 'Write', data: [20, 60, 140, 240, 320, 280, 200, 140, 90, 50, 30, 20], borderColor: '#f85149', tension: 0.4, pointRadius: 0, fill: false }] }, options: { ...dkOpts, plugins: { ...dkOpts.plugins, legend: { display: false } }, scales: { x: { grid: dkGrid, ticks: dkTick }, y: { grid: dkGrid, ticks: { ...dkTick, callback: v => v + ' MB/s' } } } } });
+    mk('c7', { type: 'bar', data: { labels: execs, datasets: [{ label: 'Completed', data: [142, 138, 130, 145, 136, 141, 128, 139], backgroundColor: '#3fb950', borderRadius: 2, stack: 'a' }, { label: 'Running', data: [6, 8, 7, 5, 8, 7, 8, 7], backgroundColor: '#58a6ff', stack: 'a' }, { label: 'Failed', data: [0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#f85149', stack: 'a' }] }, options: { ...dkOpts, plugins: { ...dkOpts.plugins, legend: { display: true, labels: { color: '#8b949e', font: { size: 10 }, boxWidth: 10, padding: 10 } } }, scales: { x: { grid: { display: false }, ticks: dkTick, stacked: true }, y: { grid: dkGrid, stacked: true, ticks: dkTick } } } });
+  }
+}
+window._ci = {};
+</script>
